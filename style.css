@@ -27,8 +27,6 @@ body.dark-theme {
     --primary-blue: #374151;
     --primary-blue-text: #60a5fa;
     --accent-black: #ffffff;
-    /* --green-text: #5bfc56;
-    --red-text: #fc5656; */
 }
 
 * {
@@ -44,6 +42,10 @@ main {
     height: 100%;
 }
 
+body {
+    overflow-x: hidden;
+}
+
 main {
     position: relative;
     background: var(--bg-main);
@@ -51,13 +53,13 @@ main {
     font-family: Arial, Helvetica, sans-serif;
     display: flex;
     transition: background 0.3s ease;
+    min-width: 0;
 }
 
 aside {
     padding: 1.35rem;
     display: flex;
     flex-direction: column;
-    background: gray;
     width: 260px;
     height: 100%;
     background: var(--bg-sidebar);
@@ -78,11 +80,6 @@ svg {
     line-height: 1.2;
 }
 
-.currency-container{
-    margin-top: 1.5rem;
-    color: var(--text-dark);
-} 
-    
 #currency{
     width: 100%;
     outline: none;
@@ -92,6 +89,35 @@ svg {
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     margin-top: 0.3rem;
+}
+
+.settings-container {
+    flex: 1;
+    display: flex;
+    padding: 2.5rem;
+    overflow-y: auto;
+    min-width: 0;
+}
+
+.settings-content {
+    width: 100%;
+    background: var(--bg-card);
+    border: solid 1px var(--border-color);
+    border-radius: 1rem;
+    padding: 2rem;
+    height: fit-content;
+    box-shadow: 0px 0px 15px var(--shadow);
+}
+
+.settings-content h2 {
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+}
+
+.currency-setting p {
+    color: var(--text-dark);
+    margin-bottom: 0.3rem;
+    font-weight: bold;
 }
 
 .logo h3 {
@@ -166,6 +192,7 @@ body.dark-theme .add-btn {
     flex: 1;
     padding: 2.5rem;
     overflow-y: auto;
+    min-width: 0;
 }
 
 .scroll::-webkit-scrollbar{
@@ -203,10 +230,6 @@ body.dark-theme .add-btn {
     color: var(--text-dark);
     box-shadow: 0px 2px 15px var(--shadow);
 }
-
-/* body.dark-theme .card{
-    
-} */
 
 .card>div:nth-child(1) {
     width: 100%;
@@ -267,19 +290,20 @@ body.dark-theme .total-expense>p:nth-of-type(2){
     margin-bottom: 1.5rem;
     display: flex;
     gap: 1.25rem;
+    align-items: flex-start;
 }
 
 .chart-parent {
     flex: 1;
     padding-top: 1rem;
     width: 100%;
+    min-height: 0;
 }
 
 canvas {
     background: var(--bg-main);
     border-radius: 1rem;
-    padding: 0rem 1rem;
-    padding-bottom: 0.2rem;
+    padding: 0 1rem 0.2rem;
 }
 
 .chart-container {
@@ -410,17 +434,20 @@ body.dark-theme .toggle-circle{
 }
 
 .filter {
-    width: 100%;
     border-radius: 0.5rem;
-    color: white;
-    padding: 0rem 1rem;
+    padding: 0.5rem 1rem;
     outline: none;
     border: solid 1px var(--border-color);
-}
-
-.transaction-search select {
     background: var(--bg-main);
     color: var(--text-dark);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.filter:hover,
+.filter:focus {
+    border-color: var(--primary-blue-text);
 }
 
 .transaction-details {
@@ -466,12 +493,6 @@ body.dark-theme .toggle-circle{
     padding: 0.2rem 0.4rem;
     border-radius: 0.2rem;
 }
-
-/* .transaction-details > p:nth-child(3),
-.transaction-details > p:nth-child(4),
-.transaction-details > p:nth-child(5) {
-    text-align: center;
-} */
 
 .transaction>div i:nth-child(1) {
     margin-right: 0.75rem;
@@ -534,10 +555,24 @@ body.dark-theme .transaction[data-type="Expense"]{
     padding: 0.6rem;
     border: solid 1px var(--border-color);
     outline: none;
-    color: white;
     border-radius: 0.3rem;
     margin-top: 0.3rem;
     margin-bottom: 1rem;
+}
+
+.amount-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--bg-main);
+    border: solid 1px var(--border-color);
+    border-radius: 0.3rem;
+    margin-top: 0.3rem;
+}
+
+.amount-currency {
+    padding: 0.6rem 0 0.6rem 0.6rem;
+    color: var(--text-dark);
+    font-weight: bold;
 }
 
 .add-transaction input {
@@ -550,6 +585,15 @@ body.dark-theme .transaction[data-type="Expense"]{
     outline: none;
     border: solid 1px var(--border-color);
     margin-top: 0.3rem;
+}
+
+.amount-wrapper .add-trans-amount {
+    flex: 1;
+    border: none;
+    background: none;
+    border-radius: 0;
+    margin-top: 0;
+    padding: 0.6rem 0.6rem 0.6rem 0;
 }
 
 .add-trans-merged {
@@ -573,7 +617,6 @@ body.dark-theme .transaction[data-type="Expense"]{
     padding: 0.6rem;
     border: solid 1px var(--border-color);
     outline: none;
-    color: white;
     border-radius: 0.3rem;
     margin-bottom: 1rem;
     margin-top: 0.3rem;
@@ -599,4 +642,255 @@ body.dark-theme .transaction[data-type="Expense"]{
 
 .none{
     display: none;
+}
+
+.preferences-mobile {
+    display: none;
+}
+
+.preferences-mobile h2 {
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 1100px) {
+    .cards-container {
+        flex-wrap: wrap;
+    }
+    .card {
+        flex: 1 1 calc(50% - 0.7rem);
+        min-width: 200px;
+    }
+    .chart-section {
+        flex-direction: column;
+    }
+    .chart-container {
+        width: 100%;
+    }
+    .transactions-section {
+        width: 100%;
+    }
+    .content-container {
+        padding: 1.5rem;
+    }
+    .settings-container {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    main {
+        flex-direction: column;
+    }
+    aside {
+        width: 100%;
+        height: auto;
+        padding: 0.5rem 1rem;
+        flex-direction: row;
+        align-items: center;
+        border-right: none;
+        border-bottom: solid 1px var(--border-color);
+    }
+    .logo p {
+        display: none;
+    }
+    .logo {
+        margin-bottom: 0;
+        margin-right: auto;
+    }
+    .logo h3 {
+        font-size: 0.9rem;
+    }
+    .nav-logo {
+        flex-direction: row;
+        align-items: center;
+        flex: none;
+        gap: 0.25rem;
+    }
+    .nav-logo > div {
+        display: flex;
+        flex-direction: row;
+        padding-top: 0;
+    }
+    .nav-btn p {
+        display: none;
+    }
+    .nav-btn {
+        padding: 0.5rem;
+        margin-bottom: 0;
+    }
+    .nav-btn>i {
+        font-size: 1.2rem;
+        margin: 0;
+    }
+    .add-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        width: auto;
+        height: auto;
+        position: static;
+        box-shadow: none;
+    }
+    .add-btn i {
+        margin: 0;
+        font-size: 1rem;
+    }
+    .content-container {
+        padding: 1rem;
+    }
+    .card>p:nth-of-type(2) {
+        font-size: 1.3rem;
+    }
+    .card {
+        padding: 0.9rem;
+    }
+    .cards-container {
+        gap: 0.75rem;
+    }
+    .chart-container {
+        height: 280px;
+        padding: 0.75rem;
+    }
+    .transactions-section {
+        padding: 0.75rem;
+        overflow-x: auto;
+    }
+    .transaction-search {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .transaction-details p,
+    .transaction>p,
+    .transaction>div {
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+    .transaction>p:nth-child(3),
+    .transaction-details p:nth-child(3) {
+        display: none;
+    }
+    .heading h1 {
+        font-size: 1.2rem;
+    }
+    .add-transaction {
+        width: 90%;
+        max-width: 400px;
+        padding: 1.25rem;
+    }
+    .settings-container {
+        padding: 1rem;
+    }
+    .settings-content {
+        padding: 1.25rem;
+    }
+    .preferences {
+        display: none;
+    }
+    .preferences-mobile {
+        display: block;
+    }
+}
+
+@media (max-width: 480px) {
+    aside {
+        padding: 0.4rem 0.6rem;
+    }
+    .logo h3 {
+        font-size: 0.75rem;
+    }
+    .logo svg {
+        width: 24px;
+    }
+    .nav-btn {
+        padding: 0.35rem;
+    }
+    .nav-btn>i {
+        font-size: 1rem;
+    }
+    .add-btn {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    .add-btn i {
+        font-size: 0.85rem;
+    }
+    .content-container {
+        padding: 0.75rem;
+    }
+    .cards-container {
+        gap: 0.5rem;
+    }
+    .card {
+        flex: 1 1 calc(50% - 0.25rem);
+        min-width: 0;
+        padding: 0.75rem;
+    }
+    .card>p:nth-of-type(2) {
+        font-size: 1.1rem;
+    }
+    .card>div:nth-child(1) {
+        padding: 0.3rem 0;
+        margin-bottom: 0.75rem;
+    }
+    .card>div:nth-child(1) i {
+        padding: 0.4rem;
+        font-size: 1rem;
+    }
+    .card>p:nth-of-type(1) {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+    .chart-container {
+        height: 220px;
+        padding: 0.5rem;
+    }
+    .preferences {
+        padding: 0.75rem;
+        height: 160px;
+    }
+    .preferences h2 {
+        margin-bottom: 1.25rem;
+        font-size: 1rem;
+    }
+    .heading h1 {
+        font-size: 1.1rem;
+        letter-spacing: -0.5px;
+    }
+    .heading p {
+        font-size: 0.75rem;
+    }
+    .heading {
+        gap: 0.15rem;
+        margin-bottom: 0.75rem;
+    }
+    .add-trans-merged {
+        flex-direction: column;
+        gap: 0;
+    }
+    .add-transaction {
+        padding: 1rem;
+    }
+    .transaction>p:nth-child(1),
+    .transaction-details p:nth-child(1) {
+        display: none;
+    }
+    .transaction>p,
+    .transaction>div {
+        font-size: 0.65rem;
+        width: 33%;
+    }
+    .transaction-details p {
+        width: 33%;
+        font-size: 0.65rem;
+    }
+    .transaction {
+        padding: 0.75rem 0.25rem;
+    }
+    canvas {
+        padding: 0 0.5rem 0.2rem;
+    }
 }

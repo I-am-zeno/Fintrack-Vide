@@ -7,9 +7,7 @@
     <title>FinTrack Pro-Functional</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
-    <script src="
-https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js
-"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 </head>
 
 <body class="dark-theme">
@@ -37,16 +35,6 @@ https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js
                         <i class="ri-settings-3-fill"></i>
                         <p>Settings</p>
                     </div>
-                    <div class="currency-container">
-                        <p>Currency</p>
-                        <select name="currency" id="currency">
-                            <option value="USD ($)">USD ($)</option>
-                        <option value="EUR (€)">EUR (€)</option>
-                        <option value="GBP (£)">GBP (£)</option>
-                        <option value="INR (₹)">INR (₹)</option>
-                        <option value="JPY (¥)">JPY (¥)</option>
-                    </select>
-                </div>
                 </div>
                 <button class="add-btn"><i class="ri-add-fill"></i> Add Transaction</button>
             </div>
@@ -110,7 +98,7 @@ https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js
                 <div class="transaction-search">
                     <div class="search">
                         <i class="ri-search-line"></i>
-                        <input type="text" placeholder="Search transactions...">
+                        <input type="text" class="search-input" placeholder="Search transactions...">
                     </div>
                     <select name="types" id="types" class="filter">
                         <option value="All Types">All Types</option>
@@ -126,18 +114,32 @@ https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js
                         <p>AMOUNT</p>
                         <p>ACTIONS</p>
                     </div>
-                    <div class="transactions-container">
-                        <!-- <div class="transaction" data-type='income'>
-                            <p>2026-07-01</p>
-                            <p>salary</p>
-                            <p>Salary</p>
-                            <p>+$900.00</p>
-                            <div>
-                                <i class="ri-pencil-fill"></i>
-                                <i class="ri-delete-bin-2-fill"></i>
-                            </div>
-                        </div> -->
+                    <div class="transactions-container"></div>
+                </div>
+            </div>
+        </div>
+        <div class="settings-container none">
+            <div class="settings-content">
+                <h2>Settings</h2>
+                <div class="currency-setting">
+                    <p>Currency</p>
+                    <select name="currency" id="currency">
+                        <option value="USD ($)">USD ($)</option>
+                        <option value="EUR (€)">EUR (€)</option>
+                        <option value="GBP (£)">GBP (£)</option>
+                        <option value="INR (₹)">INR (₹)</option>
+                        <option value="JPY (¥)">JPY (¥)</option>
+                    </select>
+                </div>
+                <div class="preferences-mobile">
+                    <h2>Preferences</h2>
+                    <div class="dark-mode">
+                        <p>Dark Mode</p>
+                        <div class="toggle">
+                            <div class="toggle-circle"></div>
+                        </div>
                     </div>
+                    <button class="reset-btn"><i class="ri-delete-bin-2-fill"></i> Reset All Data</button>
                 </div>
             </div>
         </div>
@@ -148,7 +150,7 @@ https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js
                     <i class="ri-close-fill"></i>
                 </div>
                 <p>Type</p>
-                <select name="type" id="type" class="add-trans-type">
+                <select name="type" class="add-trans-type">
                     <option value="Income">Income</option>
                     <option value="Expense">Expense</option>
                 </select>
@@ -157,7 +159,10 @@ https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js
                 <div class="add-trans-merged">
                     <div>
                         <p>Amount</p>
-                        <input name="amount" class="add-trans-amount" type="number">
+                        <div class="amount-wrapper">
+                            <span class="amount-currency">$</span>
+                            <input name="amount" class="add-trans-amount" type="number">
+                        </div>
                     </div>
                     <div>
                         <p>Date</p>
@@ -165,7 +170,7 @@ https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js
                     </div>
                 </div>
                 <p>Category</p>
-                <select name="category" id="category" class="add-trans-category">
+                <select name="category" class="add-trans-category">
                     <optgroup label="Select a category">
                         <option value="Food & Dining">Food & Dining</option>
                         <option value="Shopping">Shopping</option>

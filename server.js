@@ -1,12 +1,15 @@
 const ctx = document.querySelector('.chart-area').getContext('2d')
 const transactionsContainer = document.querySelector('.transactions-container')
-const addTransactionContainer = document.querySelector('.add-transaction-container')
 const main = document.querySelector('main')
-// const addTransaction = document.querySelector('.add-transaction')
-// console.log(addTransaction)
-// localStorage.clear()
+const contentContainer = document.querySelector('.content-container')
+const settingsContainer = document.querySelector('.settings-container')
+const dashboardBtn = document.querySelector('.dashboard-btn')
+const settingsBtn = document.querySelector('.settings-btn')
+const addTransactionContainer = document.querySelector('.add-transaction-container')
+const addTransDate = document.querySelector('.add-trans-date')
 
 let myChart = null
+let editingId = null
 let income = 0
 let expense = 0
 let currency = localStorage.getItem('currency')
@@ -22,7 +25,7 @@ function updateCurrency(e) {
 
     currency = newValue
     updateCards()
-    renderTransactions()
+    filterTransactions()
     localStorage.setItem('currency', JSON.stringify(currency))
 }
 
@@ -39,9 +42,9 @@ function updateCards() {
 
     const totalTransactions = transactions.length
 
-    main.querySelector('#current-balance').textContent = currency + currentBalance
-    main.querySelector('#total-income').textContent = currency + (totalInEx.totalIncome || 0)
-    main.querySelector('#total-expense').textContent = currency + (totalInEx.totalExpense || 0)
+    main.querySelector('#current-balance').textContent = currency + currentBalance.toFixed(2)
+    main.querySelector('#total-income').textContent = currency + (totalInEx.totalIncome || 0).toFixed(2)
+    main.querySelector('#total-expense').textContent = currency + (totalInEx.totalExpense || 0).toFixed(2)
     main.querySelector('#total-transactions').textContent = totalTransactions
 
     income = totalInEx.totalIncome || 0
@@ -50,8 +53,9 @@ function updateCards() {
     updateChart()
 }
 
-function renderTransactions() {
-    transactionsContainer.innerHTML = transactions.map(t => `
+function renderTransactions(data) {
+    const list = data || transactions
+    transactionsContainer.innerHTML = list.map(t => `
         <div class="transaction" data-type=${t.type} data-id=${t.id}>
             <p>${t.date}</p>
             <p>${t.description}</p>
@@ -65,7 +69,19 @@ function renderTransactions() {
             </div>
         </div>
     `).join('');
+}
 
+function filterTransactions() {
+    const searchText = document.querySelector('.search-input').value.toLowerCase()
+    const typeFilter = document.querySelector('#types').value
+    const filtered = transactions.filter(t => {
+        const matchSearch = t.description.toLowerCase().includes(searchText) || t.category.toLowerCase().includes(searchText)
+        const matchType = typeFilter === 'All Types' ||
+            (typeFilter === 'Income Only' && t.type === 'Income') ||
+            (typeFilter === 'Expense Only' && t.type === 'Expense')
+        return matchSearch && matchType
+    })
+    renderTransactions(filtered)
 }
 
 function createTransaction(e) {
@@ -81,33 +97,54 @@ function createTransaction(e) {
         return
     }
 
-    const newTransaction = {
-        id: Date.now(),
-        type,
-        description,
-        amount,
-        date,
-        category
+    if (editingId) {
+        const index = transactions.findIndex(t => t.id === editingId)
+        if (index !== -1) {
+            transactions[index] = { ...transactions[index], type, description, amount, date, category }
+        }
+        editingId = null
+        parent.querySelector('.add-trans-top h2').textContent = 'Add Transaction'
+    } else {
+        transactions.unshift({ id: Date.now(), type, description, amount, date, category })
     }
 
-    closeTransaction()
-    transactions.unshift(newTransaction)
+    parent.querySelector('.add-trans-description').value = ''
+    parent.querySelector('.add-trans-amount').value = ''
+    parent.querySelector('.add-trans-date').value = ''
+
+    addTransactionContainer.classList.add('none')
     setLocalStorage(transactions)
     updateCards()
-    renderTransactions()
-    parent.closest('.add-transaction-container').classList.add('none')
+    filterTransactions()
+}
+
+function editTransaction(e) {
+    const id = Number(e.closest('.transaction').dataset.id)
+    const transaction = transactions.find(t => t.id === id)
+    if (!transaction) return
+
+    const parent = main.querySelector('.add-transaction')
+    parent.querySelector('[name="type"]').value = transaction.type
+    parent.querySelector('.add-trans-description').value = transaction.description
+    parent.querySelector('.add-trans-amount').value = transaction.amount
+    parent.querySelector('.add-trans-date').value = transaction.date
+    parent.querySelector('[name="category"]').value = transaction.category
+    parent.querySelector('.add-trans-top h2').textContent = 'Edit Transaction'
+
+    editingId = id
+    addTransactionContainer.classList.remove('none')
 }
 
 function closeTransaction() {
-    const grandParent = main.querySelector(".add-transaction-container")
     const parent = main.querySelector(".add-transaction")
 
-    parent.children[4].value = ''
-    parent.children[5].children[0].children[1].value = ''
-    parent.children[5].children[1].children[1].value = ''
+    parent.querySelector('.add-trans-description').value = ''
+    parent.querySelector('.add-trans-amount').value = ''
+    parent.querySelector('.add-trans-date').value = ''
+    parent.querySelector('.add-trans-top h2').textContent = 'Add Transaction'
 
-    grandParent.classList.toggle('none')
-    return
+    editingId = null
+    addTransactionContainer.classList.toggle('none')
 }
 
 function removeTransaction(e) {
@@ -133,10 +170,12 @@ function reset() {
     if (!confirm('Are you sure you want to remove all the existing data')) return
 
     transactions = []
-    clearLocalStorage()
+    currency = '$'
+    localStorage.clear()
 
+    setCurrency()
     updateCards()
-    renderTransactions()
+    filterTransactions()
 }
 
 function updateChart() {
@@ -146,8 +185,8 @@ function updateChart() {
         data: {
             labels: ["Income vs Expense"],
             datasets: [
-                { label: 'Income', data: [income], backgroundColor: '#166534', borderRadius: 4 },
-                { label: 'Expense', data: [expense], backgroundColor: '#991b1b', borderRadius: 4 }
+                { label: 'Income', data: [income], backgroundColor: '#f97316', borderRadius: 4 },
+                { label: 'Expense', data: [expense], backgroundColor: '#78350f', borderRadius: 4 }
             ]
         },
         options: {
@@ -163,15 +202,8 @@ function setLocalStorage(arr) {
 }
 
 function getLocalStorage() {
-    const data = localStorage.getItem('transactions')
-        ? JSON.parse(localStorage.getItem('transactions'))
-        : []
-
-    return data
-}
-
-function clearLocalStorage() {
-    localStorage.clear()
+    try { return JSON.parse(localStorage.getItem('transactions')) || [] }
+    catch { return [] }
 }
 
 document.body.addEventListener('click', (e) => {
@@ -179,12 +211,18 @@ document.body.addEventListener('click', (e) => {
         closeTransaction(e.target)
     }
     if (e.target.closest('.add-btn')) {
-        const grandParent = main.querySelector(".add-transaction-container")
-        grandParent.classList.toggle('none')
+        addTransactionContainer.classList.toggle('none')
+        if (!addTransactionContainer.classList.contains('none')) {
+            addTransDate.value = new Date().toISOString().split('T')[0]
+        }
         return
     }
     if (e.target.closest('.save-transaction')) {
         createTransaction(e.target)
+        return
+    }
+    if (e.target.closest('.edit')) {
+        editTransaction(e.target)
         return
     }
     if (e.target.closest('.remove')) {
@@ -203,6 +241,20 @@ document.body.addEventListener('click', (e) => {
         updateCurrency(e.target)
         return
     }
+    if (e.target.closest('.settings-btn')) {
+        contentContainer.classList.add('none')
+        settingsContainer.classList.remove('none')
+        dashboardBtn.classList.remove('active')
+        settingsBtn.classList.add('active')
+        return
+    }
+    if (e.target.closest('.dashboard-btn')) {
+        contentContainer.classList.remove('none')
+        settingsContainer.classList.add('none')
+        settingsBtn.classList.remove('active')
+        dashboardBtn.classList.add('active')
+        return
+    }
 })
 
 function setCurrency() {
@@ -215,7 +267,10 @@ function setCurrency() {
     if (currency == '¥') curr.value = curr[4].value
 }
 
+document.querySelector('.search-input').addEventListener('input', filterTransactions)
+document.querySelector('#types').addEventListener('change', filterTransactions)
+
 setCurrency()
 updateChart()
-renderTransactions()
+filterTransactions()
 updateCards()
