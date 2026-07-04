@@ -185,8 +185,8 @@ function updateChart() {
         data: {
             labels: ["Income vs Expense"],
             datasets: [
-                { label: 'Income', data: [income], backgroundColor: '#f97316', borderRadius: 4 },
-                { label: 'Expense', data: [expense], backgroundColor: '#78350f', borderRadius: 4 }
+                { label: 'Income', data: [income], backgroundColor: '#15803d', borderRadius: 4 },
+                { label: 'Expense', data: [expense], backgroundColor: '#b91c1c', borderRadius: 4 }
             ]
         },
         options: {
