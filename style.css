@@ -599,8 +599,8 @@ body.dark-theme .transaction[data-type="Expense"]{
 .add-trans-merged {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
+    justify-content: center;
+    gap: 3rem;
     margin-top: 1rem;
     margin-bottom: 2rem;
 }
@@ -866,10 +866,6 @@ body.dark-theme .transaction[data-type="Expense"]{
     .heading {
         gap: 0.15rem;
         margin-bottom: 0.75rem;
-    }
-    .add-trans-merged {
-        flex-direction: column;
-        gap: 0;
     }
     .add-transaction {
         padding: 1rem;
