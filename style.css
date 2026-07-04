@@ -677,6 +677,12 @@ body.dark-theme .transaction[data-type="Expense"]{
     .settings-container {
         padding: 1.5rem;
     }
+    .preferences {
+        display: none;
+    }
+    .preferences-mobile {
+        display: block;
+    }
 }
 
 @media (max-width: 768px) {
