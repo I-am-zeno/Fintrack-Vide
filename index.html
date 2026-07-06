@@ -1,192 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinTrack Pro-Functional</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
+<body>
 
-<body class="dark-theme">
-    <main>
-        <aside>
-            <div class="logo">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M11 2.04938V13H21.9506C21.4489 18.0533 17.1853 22 12 22C6.47715 22 2 17.5229 2 12C2 6.81465 5.94668 2.5511 11 2.04938ZM13 2.04938C17.7244 2.51845 21.4816 6.27559 21.9506 11H13V2.04938Z">
-                    </path>
-                </svg>
-                <div>
-                    <h3>FinTrack Pro</h3>
-                    <p>Enterprise Finance</p>
-                </div>
-            </div>
+  <div class="grain"></div>
 
-            <div class="nav-logo">
-                <div>
-                    <div class="nav-btn active dashboard-btn">
-                        <i class="ri-dashboard-horizontal-fill"></i>
-                        <p>Dashboard</p>
-                    </div>
-                    <div class="nav-btn settings-btn">
-                        <i class="ri-settings-3-fill"></i>
-                        <p>Settings</p>
-                    </div>
-                </div>
-                <button class="add-btn"><i class="ri-add-fill"></i> Add Transaction</button>
-            </div>
-        </aside>
-        <div class="content-container scroll">
-            <div class="heading">
-                <h1>Financial Overview</h1>
-                <p>Real-time tracking application</p>
-            </div>
-            <div class="cards-container">
-                <div class="card current-balance">
-                    <div>
-                        <i class="ri-bank-fill"></i>
-                    </div>
-                    <p>Current Balance</p>
-                    <p id="current-balance">$0.00</p>
-                </div>
-                <div class="card total-income">
-                    <div>
-                        <i class="ri-line-chart-line"></i>
-                    </div>
-                    <p>Total Income</p>
-                    <p id="total-income">$0.00</p>
-                </div>
-                <div class="card total-expense">
-                    <div>
-                        <i class="ri-line-chart-line"></i>
-                    </div>
-                    <p>Total Expense</p>
-                    <p id="total-expense">$0.00</p>
-                </div>
-                <div class="card total-transactions">
-                    <div>
-                        <i class="ri-bank-card-fill"></i>
-                    </div>
-                    <p>Total Transaction</p>
-                    <p id="total-transactions">0</p>
-                </div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 
+  <nav class="island" id="islandNav">
+    <div class="island-body">
+      <div class="island-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 2.04938V13H21.9506C21.4489 18.0533 17.1853 22 12 22C6.47715 22 2 17.5229 2 12C2 6.81465 5.94668 2.5511 11 2.04938Z"/>
+          <path d="M13 2.04938C17.7244 2.51845 21.4816 6.27559 21.9506 11H13V2.04938Z"/>
+        </svg>
+        <span class="island-title">FinTrack</span>
+      </div>
+      <div class="island-actions">
+        <button class="btn-pill add-trigger" id="addTrigger">
+          <span>Add</span>
+          <span class="btn-icon-inner">
+            <i class="ri-add-line"></i>
+          </span>
+        </button>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="nav-overlay" id="navOverlay">
+    <div class="nav-overlay-inner">
+      <div class="nav-link-row" data-index="0">
+        <a class="nav-link active" data-view="dashboard">Dashboard</a>
+      </div>
+      <div class="nav-link-row" data-index="1">
+        <a class="nav-link" data-view="settings">Settings</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <section class="view view--dashboard" id="dashboardView">
+      <header class="section-header" data-reveal>
+        <span class="eyebrow">Real-time overview</span>
+        <h1>Financial Overview</h1>
+      </header>
+
+      <div class="bento" data-reveal>
+        <div class="bezel bento--hero" id="balanceCard">
+          <div class="bezel-inner">
+            <div class="stat-row">
+              <div class="stat-icon stat-icon--balance">
+                <i class="ri-bank-fill"></i>
+              </div>
+              <span class="stat-label">Current Balance</span>
             </div>
-            <div class="chart-section">
-                <div class="chart-container">
-                    <h2>Cash Flow Analysis</h2>
-                    <div class="chart-parent" >
-                        <canvas class="chart-area"></canvas>
-                    </div>
-                </div>
-                <div class="preferences">
-                    <h2>Preferences</h2>
-                    <div class="dark-mode">
-                        <p>Dark Mode</p>
-                        <div class="toggle">
-                            <div class="toggle-circle"></div>
-                        </div>
-                    </div>
-                    <button class="reset-btn"><i class="ri-delete-bin-2-fill"></i> Reset All Data</button>
-                </div>
-            </div>
-            <div class="transactions-section">
-                <h2>All Transactions</h2>
-                <div class="transaction-search">
-                    <div class="search">
-                        <i class="ri-search-line"></i>
-                        <input type="text" class="search-input" placeholder="Search transactions...">
-                    </div>
-                    <select name="types" id="types" class="filter">
-                        <option value="All Types">All Types</option>
-                        <option value="Income Only">Income Only</option>
-                        <option value="Expense Only">Expense Only</option>
-                    </select>
-                </div>
-                <div class="transactions">
-                    <div class="transaction-details">
-                        <p>DATE</p>
-                        <p>DESCRIPTION</p>
-                        <p>CATEGORY</p>
-                        <p>AMOUNT</p>
-                        <p>ACTIONS</p>
-                    </div>
-                    <div class="transactions-container"></div>
-                </div>
-            </div>
+            <p class="stat-value stat-value--hero" id="currentBalance">$0.00</p>
+          </div>
         </div>
-        <div class="settings-container none">
-            <div class="settings-content">
-                <h2>Settings</h2>
-                <div class="currency-setting">
-                    <p>Currency</p>
-                    <select name="currency" id="currency">
-                        <option value="USD ($)">USD ($)</option>
-                        <option value="EUR (€)">EUR (€)</option>
-                        <option value="GBP (£)">GBP (£)</option>
-                        <option value="INR (₹)">INR (₹)</option>
-                        <option value="JPY (¥)">JPY (¥)</option>
-                    </select>
-                </div>
-                <div class="preferences-mobile">
-                    <h2>Preferences</h2>
-                    <div class="dark-mode">
-                        <p>Dark Mode</p>
-                        <div class="toggle">
-                            <div class="toggle-circle"></div>
-                        </div>
-                    </div>
-                    <button class="reset-btn"><i class="ri-delete-bin-2-fill"></i> Reset All Data</button>
-                </div>
+
+        <div class="bezel" id="incomeCard">
+          <div class="bezel-inner">
+            <div class="stat-row">
+              <div class="stat-icon stat-icon--income">
+                <i class="ri-line-chart-line"></i>
+              </div>
+              <span class="stat-label">Total Income</span>
             </div>
+            <p class="stat-value stat-value--income" id="totalIncome">$0.00</p>
+          </div>
         </div>
-        <div class="add-transaction-container none">
-            <div class="add-transaction">
-                <div class="add-trans-top">
-                    <h2>Add Transaction</h2>
-                    <i class="ri-close-fill"></i>
-                </div>
-                <p>Type</p>
-                <select name="type" class="add-trans-type">
-                    <option value="Income">Income</option>
-                    <option value="Expense">Expense</option>
-                </select>
-                <p>Description</p>
-                <input class="add-trans-description" name="description" type="text" placeholder="e.g. Amazon, Salary, Coffee">
-                <div class="add-trans-merged">
-                    <div>
-                        <p>Amount</p>
-                        <div class="amount-wrapper">
-                            <span class="amount-currency">$</span>
-                            <input name="amount" class="add-trans-amount" type="number">
-                        </div>
-                    </div>
-                    <div>
-                        <p>Date</p>
-                        <input name="date" class="add-trans-date" type="date">
-                    </div>
-                </div>
-                <p>Category</p>
-                <select name="category" class="add-trans-category">
-                    <optgroup label="Select a category">
-                        <option value="Food & Dining">Food & Dining</option>
-                        <option value="Shopping">Shopping</option>
-                        <option value="Recharge & Bills">Recharge & Bills</option>
-                        <option value="Petrol & Auto">Petrol & Auto</option>
-                        <option value="Utilities">Utilities</option>
-                        <option value="Salary">Salary</option>
-                        <option value="Entertainment">Entertainment</option>
-                        <option value="Other">Other</option>
-                    </optgroup>
-                </select>
-                <button class="save-transaction">Save Transaction</button>
+
+        <div class="bezel" id="expenseCard">
+          <div class="bezel-inner">
+            <div class="stat-row">
+              <div class="stat-icon stat-icon--expense">
+                <i class="ri-line-chart-line"></i>
+              </div>
+              <span class="stat-label">Total Expense</span>
             </div>
+            <p class="stat-value stat-value--expense" id="totalExpense">$0.00</p>
+          </div>
         </div>
-    </main>
+
+        <div class="bezel" id="txCountCard">
+          <div class="bezel-inner">
+            <div class="stat-row">
+              <div class="stat-icon stat-icon--tx">
+                <i class="ri-bank-card-fill"></i>
+              </div>
+              <span class="stat-label">Transactions</span>
+            </div>
+            <p class="stat-value" id="totalTransactions">0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-section" data-reveal>
+        <div class="bezel chart-bezel">
+          <div class="bezel-inner">
+            <div class="chart-head">
+              <span class="eyebrow">Analytics</span>
+              <h2>Cash Flow Analysis</h2>
+            </div>
+            <div class="chart-wrap">
+              <canvas class="chart-area" id="chartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="bezel prefs-bezel">
+          <div class="bezel-inner">
+            <h2 class="prefs-title">Preferences</h2>
+            <div class="pref-row">
+              <span>Dark Mode</span>
+              <div class="toggle" id="themeToggle">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+            <button class="btn-reset" id="resetBtn">
+              <i class="ri-delete-bin-2-line"></i>
+              Reset All Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bezel tx-bezel" data-reveal>
+        <div class="bezel-inner">
+          <div class="tx-head">
+            <span class="eyebrow">History</span>
+            <h2>All Transactions</h2>
+          </div>
+          <div class="tx-controls">
+            <div class="search-wrap">
+              <i class="ri-search-line"></i>
+              <input type="text" class="search-input" id="searchInput" placeholder="Search transactions..." />
+            </div>
+            <select class="filter-select" id="typeFilter">
+              <option value="All Types">All Types</option>
+              <option value="Income Only">Income Only</option>
+              <option value="Expense Only">Expense Only</option>
+            </select>
+          </div>
+          <div class="tx-scroll">
+            <div class="tx-grid tx-grid--head">
+              <span>DATE</span>
+              <span>DESCRIPTION</span>
+              <span>CATEGORY</span>
+              <span>AMOUNT</span>
+              <span>ACTIONS</span>
+            </div>
+            <div class="tx-list" id="txList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view view--settings hidden" id="settingsView">
+      <header class="section-header" data-reveal>
+        <span class="eyebrow">Configuration</span>
+        <h1>Settings</h1>
+      </header>
+      <div class="bezel" data-reveal>
+        <div class="bezel-inner">
+          <div class="setting-group">
+            <label class="setting-label">Currency</label>
+            <select class="setting-select" id="currencySelect">
+              <option value="USD ($)">USD ($)</option>
+              <option value="EUR (€)">EUR (€)</option>
+              <option value="GBP (£)">GBP (£)</option>
+              <option value="INR (₹)">INR (₹)</option>
+              <option value="JPY (¥)">JPY (¥)</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Dark Mode</label>
+            <div class="pref-row">
+              <span>Toggle theme</span>
+              <div class="toggle" id="themeToggle2">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-reset" id="resetBtn2">
+            <i class="ri-delete-bin-2-line"></i>
+            Reset All Data
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="modal-overlay hidden" id="modalOverlay">
+      <div class="bezel modal-bezel">
+        <div class="bezel-inner modal-body">
+          <div class="modal-top">
+            <h2 id="modalTitle">Add Transaction</h2>
+            <button class="modal-close" id="modalClose">
+              <i class="ri-close-line"></i>
+            </button>
+          </div>
+          <label class="modal-label">Type</label>
+          <select class="modal-select" id="txType">
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+          </select>
+          <label class="modal-label">Description</label>
+          <input class="modal-input" id="txDesc" type="text" placeholder="e.g. Amazon, Salary, Coffee" />
+          <div class="modal-row">
+            <div class="modal-field">
+              <label class="modal-label">Amount</label>
+              <div class="amount-wrap">
+                <span class="amount-symbol" id="amountSymbol">$</span>
+                <input class="modal-input amount-input" id="txAmount" type="number" />
+              </div>
+            </div>
+            <div class="modal-field">
+              <label class="modal-label">Date</label>
+              <input class="modal-input" id="txDate" type="date" />
+            </div>
+          </div>
+          <label class="modal-label">Category</label>
+          <select class="modal-select" id="txCategory">
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Recharge & Bills">Recharge & Bills</option>
+            <option value="Petrol & Auto">Petrol & Auto</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Salary">Salary</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Other">Other</option>
+          </select>
+          <button class="btn-pill btn-pill--primary" id="saveTx">
+            <span>Save Transaction</span>
+            <span class="btn-icon-inner">
+              <i class="ri-check-line"></i>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="server.js"></script>
 </body>
-<script src="server.js"></script>
-
 </html>

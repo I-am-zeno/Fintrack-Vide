@@ -1,276 +1,386 @@
-const ctx = document.querySelector('.chart-area').getContext('2d')
-const transactionsContainer = document.querySelector('.transactions-container')
-const main = document.querySelector('main')
-const contentContainer = document.querySelector('.content-container')
-const settingsContainer = document.querySelector('.settings-container')
-const dashboardBtn = document.querySelector('.dashboard-btn')
-const settingsBtn = document.querySelector('.settings-btn')
-const addTransactionContainer = document.querySelector('.add-transaction-container')
-const addTransDate = document.querySelector('.add-trans-date')
+const currentBalanceEl = document.getElementById('currentBalance')
+const totalIncomeEl = document.getElementById('totalIncome')
+const totalExpenseEl = document.getElementById('totalExpense')
+const totalTransactionsEl = document.getElementById('totalTransactions')
+const chartCanvas = document.getElementById('chartCanvas')
+const txList = document.getElementById('txList')
+const searchInput = document.getElementById('searchInput')
+const typeFilter = document.getElementById('typeFilter')
+const currencySelect = document.getElementById('currencySelect')
+const amountSymbol = document.getElementById('amountSymbol')
+const hamburger = document.getElementById('hamburger')
+const navOverlay = document.getElementById('navOverlay')
+const dashboardView = document.getElementById('dashboardView')
+const settingsView = document.getElementById('settingsView')
+const modalOverlay = document.getElementById('modalOverlay')
+const modalClose = document.getElementById('modalClose')
+const modalTitle = document.getElementById('modalTitle')
+const txType = document.getElementById('txType')
+const txDesc = document.getElementById('txDesc')
+const txAmount = document.getElementById('txAmount')
+const txDate = document.getElementById('txDate')
+const txCategory = document.getElementById('txCategory')
+const saveTx = document.getElementById('saveTx')
+const addTrigger = document.getElementById('addTrigger')
+const resetBtn = document.getElementById('resetBtn')
+const resetBtn2 = document.getElementById('resetBtn2')
+const themeToggle = document.getElementById('themeToggle')
+const themeToggle2 = document.getElementById('themeToggle2')
 
 let myChart = null
 let editingId = null
 let income = 0
 let expense = 0
 let currency = localStorage.getItem('currency')
-    ? JSON.parse(localStorage.getItem('currency'))
-    : '$'
+  ? JSON.parse(localStorage.getItem('currency'))
+  : '$'
 
 let transactions = getLocalStorage()
 
 function updateCurrency(e) {
-    const newValue = e.closest('#currency').value.slice(5, 6)
-
-    if (newValue == currency) return
-
-    currency = newValue
-    updateCards()
-    filterTransactions()
-    localStorage.setItem('currency', JSON.stringify(currency))
+  const newValue = e.closest('#currencySelect').value.slice(5, 6)
+  if (newValue === currency) return
+  currency = newValue
+  amountSymbol.textContent = currency
+  updateCards()
+  filterTransactions()
+  localStorage.setItem('currency', JSON.stringify(currency))
 }
 
 function updateCards() {
-    const totalInEx = transactions.reduce((a, c) => {
-        const key = `total${c.type}`
-        a[key] = (a[key] || 0) + Number(c.amount)
-        return a
-    }, {})
+  const totalInEx = transactions.reduce((a, c) => {
+    const key = `total${c.type}`
+    a[key] = (a[key] || 0) + Number(c.amount)
+    return a
+  }, {})
 
-    const currentBalance =
-        (totalInEx.totalIncome || 0) -
-        (totalInEx.totalExpense || 0)
+  const currentBalance =
+    (totalInEx.totalIncome || 0) -
+    (totalInEx.totalExpense || 0)
 
-    const totalTransactions = transactions.length
+  const totalTransactions = transactions.length
 
-    main.querySelector('#current-balance').textContent = currency + currentBalance.toFixed(2)
-    main.querySelector('#total-income').textContent = currency + (totalInEx.totalIncome || 0).toFixed(2)
-    main.querySelector('#total-expense').textContent = currency + (totalInEx.totalExpense || 0).toFixed(2)
-    main.querySelector('#total-transactions').textContent = totalTransactions
+  currentBalanceEl.textContent = currency + currentBalance.toFixed(2)
+  totalIncomeEl.textContent = currency + (totalInEx.totalIncome || 0).toFixed(2)
+  totalExpenseEl.textContent = currency + (totalInEx.totalExpense || 0).toFixed(2)
+  totalTransactionsEl.textContent = totalTransactions
 
-    income = totalInEx.totalIncome || 0
-    expense = totalInEx.totalExpense || 0
+  income = totalInEx.totalIncome || 0
+  expense = totalInEx.totalExpense || 0
 
-    updateChart()
+  updateChart()
 }
 
 function renderTransactions(data) {
-    const list = data || transactions
-    transactionsContainer.innerHTML = list.map(t => `
-        <div class="transaction" data-type=${t.type} data-id=${t.id}>
-            <p>${t.date}</p>
-            <p>${t.description}</p>
-            <div>
-            <p>${t.category}</p>
-            </div>
-            <p>${t.type == 'Income' ? '+' : '-'} ${currency}${t.amount}</p>
-            <div>
-                <i class="ri-pencil-fill edit"></i>
-                <i class="ri-delete-bin-2-fill remove"></i>
-            </div>
-        </div>
-    `).join('');
+  const list = data || transactions
+  txList.innerHTML = list.map(t => `
+    <div class="tx-row" data-type="${t.type}" data-id="${t.id}">
+      <span>${t.date}</span>
+      <span>${t.description}</span>
+      <span><span class="tx-category">${t.category}</span></span>
+      <span class="tx-amount--${t.type.toLowerCase()}">${t.type === 'Income' ? '+' : '-'} ${currency}${t.amount}</span>
+      <span class="tx-actions">
+        <button class="tx-edit" data-id="${t.id}"><i class="ri-pencil-line"></i></button>
+        <button class="tx-delete" data-id="${t.id}"><i class="ri-delete-bin-2-line"></i></button>
+      </span>
+    </div>
+  `).join('')
 }
 
 function filterTransactions() {
-    const searchText = document.querySelector('.search-input').value.toLowerCase()
-    const typeFilter = document.querySelector('#types').value
-    const filtered = transactions.filter(t => {
-        const matchSearch = t.description.toLowerCase().includes(searchText) || t.category.toLowerCase().includes(searchText)
-        const matchType = typeFilter === 'All Types' ||
-            (typeFilter === 'Income Only' && t.type === 'Income') ||
-            (typeFilter === 'Expense Only' && t.type === 'Expense')
-        return matchSearch && matchType
-    })
-    renderTransactions(filtered)
+  const searchText = searchInput.value.toLowerCase()
+  const typeValue = typeFilter.value
+  const filtered = transactions.filter(t => {
+    const matchSearch = t.description.toLowerCase().includes(searchText) || t.category.toLowerCase().includes(searchText)
+    const matchType = typeValue === 'All Types' ||
+      (typeValue === 'Income Only' && t.type === 'Income') ||
+      (typeValue === 'Expense Only' && t.type === 'Expense')
+    return matchSearch && matchType
+  })
+  renderTransactions(filtered)
 }
 
-function createTransaction(e) {
-    const parent = e.closest('.add-transaction')
-    const type = parent.querySelector('[name= "type"]').value
-    const description = parent.querySelector('[name= "description"]').value
-    const amount = parent.querySelector('[name= "amount"]').value
-    const date = parent.querySelector('[name= "date"]').value
-    const category = parent.querySelector('[name= "category"]').value
+function createTransaction() {
+  const type = txType.value
+  const description = txDesc.value
+  const amount = txAmount.value
+  const date = txDate.value
+  const category = txCategory.value
 
-    if (!type || !description || !amount || !date || !category) {
-        alert('All fields are required')
-        return
+  if (!type || !description || !amount || !date || !category) {
+    alert('All fields are required')
+    return
+  }
+
+  if (editingId) {
+    const index = transactions.findIndex(t => t.id === editingId)
+    if (index !== -1) {
+      transactions[index] = { ...transactions[index], type, description, amount, date, category }
     }
-
-    if (editingId) {
-        const index = transactions.findIndex(t => t.id === editingId)
-        if (index !== -1) {
-            transactions[index] = { ...transactions[index], type, description, amount, date, category }
-        }
-        editingId = null
-        parent.querySelector('.add-trans-top h2').textContent = 'Add Transaction'
-    } else {
-        transactions.unshift({ id: Date.now(), type, description, amount, date, category })
-    }
-
-    parent.querySelector('.add-trans-description').value = ''
-    parent.querySelector('.add-trans-amount').value = ''
-    parent.querySelector('.add-trans-date').value = ''
-
-    addTransactionContainer.classList.add('none')
-    setLocalStorage(transactions)
-    updateCards()
-    filterTransactions()
-}
-
-function editTransaction(e) {
-    const id = Number(e.closest('.transaction').dataset.id)
-    const transaction = transactions.find(t => t.id === id)
-    if (!transaction) return
-
-    const parent = main.querySelector('.add-transaction')
-    parent.querySelector('[name="type"]').value = transaction.type
-    parent.querySelector('.add-trans-description').value = transaction.description
-    parent.querySelector('.add-trans-amount').value = transaction.amount
-    parent.querySelector('.add-trans-date').value = transaction.date
-    parent.querySelector('[name="category"]').value = transaction.category
-    parent.querySelector('.add-trans-top h2').textContent = 'Edit Transaction'
-
-    editingId = id
-    addTransactionContainer.classList.remove('none')
-}
-
-function closeTransaction() {
-    const parent = main.querySelector(".add-transaction")
-
-    parent.querySelector('.add-trans-description').value = ''
-    parent.querySelector('.add-trans-amount').value = ''
-    parent.querySelector('.add-trans-date').value = ''
-    parent.querySelector('.add-trans-top h2').textContent = 'Add Transaction'
-
     editingId = null
-    addTransactionContainer.classList.toggle('none')
+    modalTitle.textContent = 'Add Transaction'
+  } else {
+    transactions.unshift({ id: Date.now(), type, description, amount, date, category })
+  }
+
+  txDesc.value = ''
+  txAmount.value = ''
+  txDate.value = ''
+
+  closeModal()
+  setLocalStorage(transactions)
+  updateCards()
+  filterTransactions()
 }
 
-function removeTransaction(e) {
-    const parent = e.closest('.transaction')
+function editTransaction(id) {
+  const transaction = transactions.find(t => t.id === id)
+  if (!transaction) return
 
-    const permission = confirm('Are you sure you want to delet this transaction')
+  txType.value = transaction.type
+  txDesc.value = transaction.description
+  txAmount.value = transaction.amount
+  txDate.value = transaction.date
+  txCategory.value = transaction.category
+  modalTitle.textContent = 'Edit Transaction'
 
-    if (!permission) return
+  editingId = id
+  openModal()
+}
 
-    const updatedData = transactions.filter(t => t.id !== Number(parent.dataset.id))
+function closeModal() {
+  modalOverlay.classList.remove('open')
+  txDesc.value = ''
+  txAmount.value = ''
+  txDate.value = ''
+  modalTitle.textContent = 'Add Transaction'
+  editingId = null
+}
 
-    transactions = updatedData
+function openModal() {
+  if (!txDate.value) {
+    txDate.value = new Date().toISOString().split('T')[0]
+  }
+  modalOverlay.classList.add('open')
+}
 
-    setLocalStorage(updatedData)
+function removeTransaction(id) {
+  const permission = confirm('Are you sure you want to delete this transaction?')
+  if (!permission) return
 
-    parent.remove()
-    updateCards()
+  transactions = transactions.filter(t => t.id !== id)
+  setLocalStorage(transactions)
+  updateCards()
+  filterTransactions()
 }
 
 function reset() {
-    if (transactions.length === 0) return
+  if (transactions.length === 0) return
+  if (!confirm('Are you sure you want to remove all existing data?')) return
 
-    if (!confirm('Are you sure you want to remove all the existing data')) return
+  transactions = []
+  currency = '$'
+  localStorage.clear()
 
-    transactions = []
-    currency = '$'
-    localStorage.clear()
+  currencySelect.value = currencySelect.options[0].value
+  amountSymbol.textContent = currency
+  updateCards()
+  filterTransactions()
+}
 
-    setCurrency()
-    updateCards()
-    filterTransactions()
+function getChartColors() {
+  const style = getComputedStyle(document.body)
+  return {
+    text: style.getPropertyValue('--text-secondary').trim() || 'rgba(255,255,255,0.55)',
+    grid: style.getPropertyValue('--border-hairline').trim() || 'rgba(255,255,255,0.04)'
+  }
 }
 
 function updateChart() {
-    if (myChart) { myChart.destroy() }
-    myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ["Income vs Expense"],
-            datasets: [
-                { label: 'Income', data: [income], backgroundColor: '#15803d', borderRadius: 4 },
-                { label: 'Expense', data: [expense], backgroundColor: '#b91c1c', borderRadius: 4 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
+  if (myChart) { myChart.destroy() }
+  const ctx = chartCanvas.getContext('2d')
+  const { text, grid } = getChartColors()
+  const barColor = getComputedStyle(document.body).getPropertyValue('--accent-green').trim() || '#4ade80'
+  const barColor2 = getComputedStyle(document.body).getPropertyValue('--accent-red').trim() || '#f87171'
+  myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Income vs Expense'],
+      datasets: [
+        { label: 'Income', data: [income], backgroundColor: barColor, borderRadius: 4 },
+        { label: 'Expense', data: [expense], backgroundColor: barColor2, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: text, font: { family: 'Plus Jakarta Sans' } }
         }
-    })
+      },
+      scales: {
+        x: { ticks: { color: text, font: { family: 'Plus Jakarta Sans' } }, grid: { color: grid } },
+        y: { ticks: { color: text, font: { family: 'Plus Jakarta Sans' } }, grid: { color: grid } }
+      }
+    }
+  })
 }
 
 function setLocalStorage(arr) {
-    if (!arr || !Array.isArray(arr)) return
-    localStorage.setItem('transactions', JSON.stringify(arr))
+  if (!arr || !Array.isArray(arr)) return
+  localStorage.setItem('transactions', JSON.stringify(arr))
 }
 
 function getLocalStorage() {
-    try { return JSON.parse(localStorage.getItem('transactions')) || [] }
-    catch { return [] }
+  try { return JSON.parse(localStorage.getItem('transactions')) || [] }
+  catch { return [] }
+}
+
+function setCurrency() {
+  const map = { '$': 0, '€': 1, '£': 2, '₹': 3, '¥': 4 }
+  const idx = map[currency]
+  if (idx !== undefined) {
+    currencySelect.selectedIndex = idx
+  }
+  amountSymbol.textContent = currency
+}
+
+function setTheme(isDark) {
+  if (isDark) {
+    document.body.classList.add('dark')
+    themeToggle.classList.add('active')
+    themeToggle2.classList.add('active')
+  } else {
+    document.body.classList.remove('dark')
+    themeToggle.classList.remove('active')
+    themeToggle2.classList.remove('active')
+  }
+  localStorage.setItem('theme', isDark ? 'dark' : 'light')
+  if (myChart) updateChart()
+}
+
+function toggleTheme() {
+  const isDark = !document.body.classList.contains('dark')
+  setTheme(isDark)
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('theme')
+  setTheme(saved !== 'light')
+}
+
+function switchView(view) {
+  dashboardView.classList.toggle('hidden', view !== 'dashboard')
+  settingsView.classList.toggle('hidden', view !== 'settings')
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'))
+  const activeLink = document.querySelector(`.nav-link[data-view="${view}"]`)
+  if (activeLink) activeLink.classList.add('active')
+  closeNav()
+}
+
+function toggleNav() {
+  const isOpen = navOverlay.classList.contains('open')
+  navOverlay.classList.toggle('open')
+  hamburger.classList.toggle('active')
+  if (!isOpen) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+}
+
+function closeNav() {
+  navOverlay.classList.remove('open')
+  hamburger.classList.remove('active')
+  document.body.style.overflow = ''
+}
+
+function scrollReveal() {
+  const els = document.querySelectorAll('[data-reveal]')
+  if (!els.length) return
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed')
+        obs.unobserve(entry.target)
+      }
+    })
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
+  els.forEach(el => obs.observe(el))
 }
 
 document.body.addEventListener('click', (e) => {
-    if (e.target.closest('.ri-close-fill')) {
-        closeTransaction(e.target)
-    }
-    if (e.target.closest('.add-btn')) {
-        addTransactionContainer.classList.toggle('none')
-        if (!addTransactionContainer.classList.contains('none')) {
-            addTransDate.value = new Date().toISOString().split('T')[0]
-        }
-        return
-    }
-    if (e.target.closest('.save-transaction')) {
-        createTransaction(e.target)
-        return
-    }
-    if (e.target.closest('.edit')) {
-        editTransaction(e.target)
-        return
-    }
-    if (e.target.closest('.remove')) {
-        removeTransaction(e.target)
-        return
-    }
-    if (e.target.closest('.reset-btn')) {
-        reset()
-        return
-    }
-    if (e.target.closest('.toggle')) {
-        document.body.classList.toggle('dark-theme')
-        return
-    }
-    if (e.target.closest('#currency')) {
-        updateCurrency(e.target)
-        return
-    }
-    if (e.target.closest('.settings-btn')) {
-        contentContainer.classList.add('none')
-        settingsContainer.classList.remove('none')
-        dashboardBtn.classList.remove('active')
-        settingsBtn.classList.add('active')
-        return
-    }
-    if (e.target.closest('.dashboard-btn')) {
-        contentContainer.classList.remove('none')
-        settingsContainer.classList.add('none')
-        settingsBtn.classList.remove('active')
-        dashboardBtn.classList.add('active')
-        return
-    }
+  const target = e.target
+
+  if (target.closest('#hamburger')) {
+    toggleNav()
+    return
+  }
+
+  if (target.closest('#navOverlay') && !target.closest('.nav-overlay-inner')) {
+    closeNav()
+    return
+  }
+
+  if (target.closest('.nav-link') && !target.closest('#navOverlay .nav-link')) return
+
+  const navLink = target.closest('#navOverlay .nav-link')
+  if (navLink) {
+    const view = navLink.dataset.view
+    switchView(view)
+    return
+  }
+
+  if (target.closest('#addTrigger')) {
+    openModal()
+    return
+  }
+
+  if (target.closest('#modalClose') || (target.closest('#modalOverlay') && !target.closest('.modal-bezel'))) {
+    closeModal()
+    return
+  }
+
+  if (target.closest('#saveTx')) {
+    createTransaction()
+    return
+  }
+
+  if (target.closest('.tx-edit')) {
+    const id = Number(target.closest('.tx-edit').dataset.id)
+    editTransaction(id)
+    return
+  }
+
+  if (target.closest('.tx-delete')) {
+    const id = Number(target.closest('.tx-delete').dataset.id)
+    removeTransaction(id)
+    return
+  }
+
+  if (target.closest('#resetBtn') || target.closest('#resetBtn2')) {
+    reset()
+    return
+  }
+
+  if (target.closest('#themeToggle') || target.closest('#themeToggle2')) {
+    toggleTheme()
+    return
+  }
+
+  if (target.closest('#currencySelect')) {
+    updateCurrency(target.closest('#currencySelect'))
+    return
+  }
 })
 
-function setCurrency() {
-    const curr = main.querySelector('#currency')
+searchInput.addEventListener('input', filterTransactions)
+typeFilter.addEventListener('change', filterTransactions)
 
-    if (currency == '$') curr.value = curr[0].value
-    if (currency == '€') curr.value = curr[1].value
-    if (currency == '£') curr.value = curr[2].value
-    if (currency == '₹') curr.value = curr[3].value
-    if (currency == '¥') curr.value = curr[4].value
-}
-
-document.querySelector('.search-input').addEventListener('input', filterTransactions)
-document.querySelector('#types').addEventListener('change', filterTransactions)
-
+initTheme()
 setCurrency()
 updateChart()
 filterTransactions()
 updateCards()
+scrollReveal()
