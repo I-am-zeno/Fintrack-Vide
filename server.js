@@ -27,6 +27,9 @@ const resetBtn2 = document.getElementById('resetBtn2')
 const themeToggle = document.getElementById('themeToggle')
 const themeToggle2 = document.getElementById('themeToggle2')
 
+const symMap = { 'USD ($)': '$', 'EUR (€)': '€', 'GBP (£)': '£', 'INR (₹)': '₹', 'JPY (¥)': '¥' }
+const currencyIdx = { '$': 0, '€': 1, '£': 2, '₹': 3, '¥': 4 }
+
 let myChart = null
 let editingId = null
 let income = 0
@@ -38,7 +41,9 @@ let currency = localStorage.getItem('currency')
 let transactions = getLocalStorage()
 
 function updateCurrency(e) {
-  const newValue = e.closest('#currencySelect').value.slice(5, 6)
+  const select = e.closest('#currencySelect')
+  if (!select) return
+  const newValue = symMap[select.value] || currency
   if (newValue === currency) return
   currency = newValue
   amountSymbol.textContent = currency
@@ -48,53 +53,69 @@ function updateCurrency(e) {
 }
 
 function updateCards() {
-  const totalInEx = transactions.reduce((a, c) => {
-    const key = `total${c.type}`
-    a[key] = (a[key] || 0) + Number(c.amount)
+  if (!transactions.length) {
+    currentBalanceEl.textContent = currency + '0.00'
+    totalIncomeEl.textContent = currency + '0.00'
+    totalExpenseEl.textContent = currency + '0.00'
+    totalTransactionsEl.textContent = '0'
+    income = 0
+    expense = 0
+    updateChart()
+    return
+  }
+
+  const totalInEx = transactions.reduce((a, { type, amount }) => {
+    a[`total${type}`] = (a[`total${type}`] || 0) + Number(amount)
     return a
   }, {})
 
-  const currentBalance =
-    (totalInEx.totalIncome || 0) -
-    (totalInEx.totalExpense || 0)
+  const totalIncome = totalInEx.totalIncome || 0
+  const totalExpense = totalInEx.totalExpense || 0
+  const balance = totalIncome - totalExpense
 
-  const totalTransactions = transactions.length
+  currentBalanceEl.textContent = currency + balance.toFixed(2)
+  totalIncomeEl.textContent = currency + totalIncome.toFixed(2)
+  totalExpenseEl.textContent = currency + totalExpense.toFixed(2)
+  totalTransactionsEl.textContent = transactions.length
 
-  currentBalanceEl.textContent = currency + currentBalance.toFixed(2)
-  totalIncomeEl.textContent = currency + (totalInEx.totalIncome || 0).toFixed(2)
-  totalExpenseEl.textContent = currency + (totalInEx.totalExpense || 0).toFixed(2)
-  totalTransactionsEl.textContent = totalTransactions
-
-  income = totalInEx.totalIncome || 0
-  expense = totalInEx.totalExpense || 0
+  income = totalIncome
+  expense = totalExpense
 
   updateChart()
 }
 
 function renderTransactions(data) {
   const list = data || transactions
-  txList.innerHTML = list.map(t => `
-    <div class="tx-row" data-type="${t.type}" data-id="${t.id}">
+  txList.innerHTML = list.map(t => {
+    const typeLower = t.type.toLowerCase()
+    const sign = t.type === 'Income' ? '+' : '-'
+    return `<div class="tx-row" data-type="${t.type}" data-id="${t.id}">
       <span>${t.date}</span>
       <span>${t.description}</span>
       <span><span class="tx-category">${t.category}</span></span>
-      <span class="tx-amount--${t.type.toLowerCase()}">${t.type === 'Income' ? '+' : '-'} ${currency}${t.amount}</span>
+      <span class="tx-amount--${typeLower}">${sign} ${currency}${t.amount}</span>
       <span class="tx-actions">
         <button class="tx-edit" data-id="${t.id}"><i class="ri-pencil-line"></i></button>
         <button class="tx-delete" data-id="${t.id}"><i class="ri-delete-bin-2-line"></i></button>
       </span>
-    </div>
-  `).join('')
+    </div>`
+  }).join('')
 }
 
 function filterTransactions() {
   const searchText = searchInput.value.toLowerCase()
   const typeValue = typeFilter.value
+  const filterIncome = typeValue === 'Income Only'
+  const filterExpense = typeValue === 'Expense Only'
+  const filterAll = typeValue === 'All Types'
+
   const filtered = transactions.filter(t => {
-    const matchSearch = t.description.toLowerCase().includes(searchText) || t.category.toLowerCase().includes(searchText)
-    const matchType = typeValue === 'All Types' ||
-      (typeValue === 'Income Only' && t.type === 'Income') ||
-      (typeValue === 'Expense Only' && t.type === 'Expense')
+    const matchSearch = !searchText ||
+      t.description.toLowerCase().includes(searchText) ||
+      t.category.toLowerCase().includes(searchText)
+    const matchType = filterAll ||
+      (filterIncome && t.type === 'Income') ||
+      (filterExpense && t.type === 'Expense')
     return matchSearch && matchType
   })
   renderTransactions(filtered)
@@ -165,8 +186,8 @@ function openModal() {
 }
 
 function removeTransaction(id) {
-  const permission = confirm('Are you sure you want to delete this transaction?')
-  if (!permission) return
+  if (!transactions.some(t => t.id === id)) return
+  if (!confirm('Are you sure you want to delete this transaction?')) return
 
   transactions = transactions.filter(t => t.id !== id)
   setLocalStorage(transactions)
@@ -192,23 +213,24 @@ function getChartColors() {
   const style = getComputedStyle(document.body)
   return {
     text: style.getPropertyValue('--text-secondary').trim() || 'rgba(255,255,255,0.55)',
-    grid: style.getPropertyValue('--border-hairline').trim() || 'rgba(255,255,255,0.04)'
+    grid: style.getPropertyValue('--border-hairline').trim() || 'rgba(255,255,255,0.04)',
+    green: style.getPropertyValue('--accent-green').trim() || '#4ade80',
+    red: style.getPropertyValue('--accent-red').trim() || '#f87171'
   }
 }
 
 function updateChart() {
   if (myChart) { myChart.destroy() }
   const ctx = chartCanvas.getContext('2d')
-  const { text, grid } = getChartColors()
-  const barColor = getComputedStyle(document.body).getPropertyValue('--accent-green').trim() || '#4ade80'
-  const barColor2 = getComputedStyle(document.body).getPropertyValue('--accent-red').trim() || '#f87171'
+  if (!ctx) return
+  const { text, grid, green, red } = getChartColors()
   myChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Income vs Expense'],
       datasets: [
-        { label: 'Income', data: [income], backgroundColor: barColor, borderRadius: 4 },
-        { label: 'Expense', data: [expense], backgroundColor: barColor2, borderRadius: 4 }
+        { label: 'Income', data: [income], backgroundColor: green, borderRadius: 4 },
+        { label: 'Expense', data: [expense], backgroundColor: red, borderRadius: 4 }
       ]
     },
     options: {
@@ -238,8 +260,7 @@ function getLocalStorage() {
 }
 
 function setCurrency() {
-  const map = { '$': 0, '€': 1, '£': 2, '₹': 3, '¥': 4 }
-  const idx = map[currency]
+  const idx = currencyIdx[currency]
   if (idx !== undefined) {
     currencySelect.selectedIndex = idx
   }
@@ -247,15 +268,9 @@ function setCurrency() {
 }
 
 function setTheme(isDark) {
-  if (isDark) {
-    document.body.classList.add('dark')
-    themeToggle.classList.add('active')
-    themeToggle2.classList.add('active')
-  } else {
-    document.body.classList.remove('dark')
-    themeToggle.classList.remove('active')
-    themeToggle2.classList.remove('active')
-  }
+  document.body.classList.toggle('dark', isDark)
+  themeToggle.classList.toggle('active', isDark)
+  themeToggle2.classList.toggle('active', isDark)
   localStorage.setItem('theme', isDark ? 'dark' : 'light')
   if (myChart) updateChart()
 }
@@ -296,18 +311,26 @@ function closeNav() {
   document.body.style.overflow = ''
 }
 
+let revealObs = null
+
 function scrollReveal() {
   const els = document.querySelectorAll('[data-reveal]')
   if (!els.length) return
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('revealed')
-        obs.unobserve(entry.target)
-      }
-    })
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
-  els.forEach(el => obs.observe(el))
+  if (!revealObs) {
+    revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed')
+          revealObs.unobserve(entry.target)
+        }
+      })
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
+  }
+  els.forEach(el => revealObs.observe(el))
+}
+
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => scrollReveal(), { timeout: 500 })
 }
 
 document.body.addEventListener('click', (e) => {
@@ -383,4 +406,3 @@ setCurrency()
 updateChart()
 filterTransactions()
 updateCards()
-scrollReveal()

@@ -43,6 +43,9 @@
   --hover-red: rgba(255, 59, 48, 0.08);
   --select-arrow: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(0,0,0,0.3)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --stat-icon-tx-bg: rgba(0, 0, 0, 0.04);
+  --input-bg: #f5f5f7;
+  --input-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+  --focus-ring: 0 0 0 2px rgba(0, 122, 255, 0.25);
 }
 
 body.dark {
@@ -84,6 +87,9 @@ body.dark {
   --hover-red: rgba(248, 113, 113, 0.1);
   --select-arrow: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --stat-icon-tx-bg: rgba(255, 255, 255, 0.06);
+  --input-bg: #181818;
+  --input-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  --focus-ring: 0 0 0 2px rgba(96, 165, 250, 0.3);
 }
 
 *,
@@ -675,15 +681,17 @@ body.dark .btn-reset {
   gap: 0.5rem;
   padding: 0.55rem 1rem;
   border-radius: var(--radius-pill);
-  background: var(--surface-glass);
+  background: var(--input-bg);
   border: 1px solid var(--border-hairline);
+  box-shadow: var(--input-shadow);
   flex: 1;
   min-width: 200px;
-  transition: border-color 0.5s var(--ease-smooth);
+  transition: border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
 }
 
 .search-wrap:focus-within {
   border-color: var(--border-visible);
+  box-shadow: var(--focus-ring);
 }
 
 .search-wrap i {
@@ -708,14 +716,15 @@ body.dark .btn-reset {
 .filter-select {
   padding: 0.55rem 1rem;
   border-radius: var(--radius-pill);
-  background: var(--surface-glass);
+  background: var(--input-bg);
   border: 1px solid var(--border-hairline);
-  color: var(--text-secondary);
+  box-shadow: var(--input-shadow);
+  color: var(--text-primary);
   font-family: inherit;
   font-size: 0.85rem;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.5s var(--ease-smooth);
+  transition: border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
   appearance: none;
   -webkit-appearance: none;
   background-image: var(--select-arrow);
@@ -726,6 +735,7 @@ body.dark .btn-reset {
 
 .filter-select:focus {
   border-color: var(--border-visible);
+  box-shadow: var(--focus-ring);
 }
 
 .tx-scroll {
@@ -849,14 +859,15 @@ body.dark .btn-reset {
   width: 100%;
   padding: 0.65rem 1rem;
   border-radius: var(--radius-pill);
-  background: var(--surface-glass);
+  background: var(--input-bg);
   border: 1px solid var(--border-hairline);
+  box-shadow: var(--input-shadow);
   color: var(--text-primary);
   font-family: inherit;
   font-size: 0.9rem;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.5s var(--ease-smooth);
+  transition: border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
   appearance: none;
   -webkit-appearance: none;
   background-image: var(--select-arrow);
@@ -867,6 +878,7 @@ body.dark .btn-reset {
 
 .setting-select:focus {
   border-color: var(--border-visible);
+  box-shadow: var(--focus-ring);
 }
 
 .modal-overlay {
@@ -954,14 +966,15 @@ body.dark .btn-reset {
   width: 100%;
   padding: 0.65rem 1rem;
   border-radius: 0.75rem;
-  background: var(--surface-glass);
+  background: var(--input-bg);
   border: 1px solid var(--border-hairline);
+  box-shadow: var(--input-shadow);
   color: var(--text-primary);
   font-family: inherit;
   font-size: 0.85rem;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.5s var(--ease-smooth);
+  transition: border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
   appearance: none;
   -webkit-appearance: none;
   background-image: var(--select-arrow);
@@ -972,23 +985,26 @@ body.dark .btn-reset {
 
 .modal-select:focus {
   border-color: var(--border-visible);
+  box-shadow: var(--focus-ring);
 }
 
 .modal-input {
   width: 100%;
   padding: 0.65rem 1rem;
   border-radius: 0.75rem;
-  background: var(--surface-glass);
+  background: var(--input-bg);
   border: 1px solid var(--border-hairline);
+  box-shadow: var(--input-shadow);
   color: var(--text-primary);
   font-family: inherit;
   font-size: 0.85rem;
   outline: none;
-  transition: border-color 0.5s var(--ease-smooth);
+  transition: border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
 }
 
 .modal-input:focus {
   border-color: var(--border-visible);
+  box-shadow: var(--focus-ring);
 }
 
 .modal-input::placeholder {
@@ -1005,13 +1021,15 @@ body.dark .btn-reset {
   display: flex;
   align-items: center;
   border-radius: 0.75rem;
-  background: var(--surface-glass);
+  background: var(--input-bg);
   border: 1px solid var(--border-hairline);
-  transition: border-color 0.5s var(--ease-smooth);
+  box-shadow: var(--input-shadow);
+  transition: border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
 }
 
 .amount-wrap:focus-within {
   border-color: var(--border-visible);
+  box-shadow: var(--focus-ring);
 }
 
 .amount-symbol {
@@ -1109,6 +1127,10 @@ body.dark .btn-reset {
   .chart-section {
     grid-template-columns: 1fr;
     gap: 0.75rem;
+  }
+
+  .prefs-bezel {
+    display: none;
   }
 
   .chart-wrap {
